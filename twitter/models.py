@@ -331,6 +331,7 @@ class User(TwitterModel):
             'default_profile': None,
             'default_profile_image': None,
             'description': None,
+            'description_expanded': None,
             'display_url': None,
             'email': None,
             'expanded_url': None,
@@ -386,6 +387,13 @@ class User(TwitterModel):
                 urls = [Url.NewFromJsonDict(u) for u in data['entities']['url']['urls']]
                 if urls != None:
                     data['expanded_url'] = urls[0].expanded_url
+            description = data.get('description')
+            if 'description' in data['entities']:
+                urls = [Url.NewFromJsonDict(u) for u in data['entities']['description']['urls']]
+                for url in urls:
+                    description = description.replace(url.url, url.expanded_url)
+            # Will fill expanded with default even if no link exists.
+            data['description_expanded'] = description
             return super(cls, cls).NewFromJsonDict(data=data)
         if data.get('status', None):
             status = Status.NewFromJsonDict(data.get('status'))
